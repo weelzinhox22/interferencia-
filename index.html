@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interferência — efeitos para vídeo</title><link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header><div class="brand"><span>✦</span><div><strong>INTERFERÊNCIA</strong><small>VHS, CRT e emojis</small></div></div><span class="privacy">Sem vídeo · sem upload · no navegador</span></header>
+  <main>
+    <section class="preview-area"><div class="heading"><div><span class="eyebrow">PRÉVIA AO VIVO</span><h1>Crie seu efeito.</h1><p>Configure a interferência e abra a tela limpa para captura.</p></div><button id="openOverlay" class="primary">↗ Abrir efeito</button></div>
+      <div class="preview-shell"><div id="surface" class="surface"><canvas id="effects"></canvas><div id="particles" aria-hidden="true"></div><span class="preview-mark">PRÉVIA DO EFEITO</span></div></div>
+      <p class="hint">A tela limpa não contém vídeo. Para sobrepor no LIVE Studio, use a captura de janela e, se necessário, remova o fundo verde com chroma key. As reações são apenas decorativas.</p><p id="status" role="status" class="hint"></p>
+    </section>
+    <aside><div class="aside-heading"><div><span class="eyebrow">PERSONALIZAR</span><h2>Controles</h2></div><button id="reset" class="link">Restaurar</button></div>
+      <details open><summary>◉ Interferência <input id="enabled" type="checkbox" checked aria-label="Ativar interferência"></summary><div class="body">
+        <label>Modelo<select id="model"><option value="vhs">VHS · faixas e ruído</option><option value="crt">CRT · linhas finas</option><option value="glitch">Glitch · falhas digitais</option></select></label>
+        <div class="row"><label>Cor<input id="color" type="color" value="#d5fff7"></label><label>Espessura <output for="thickness"></output><input id="thickness" type="range" min="1" max="24" value="4"></label></div>
+        <label>Intensidade <output for="intensity"></output><input id="intensity" type="range" min="0" max="100" value="25"></label><label>Velocidade <output for="speed"></output><input id="speed" type="range" min="0" max="100" value="35"></label>
+      </div></details>
+      <details open><summary>✦ Emojis <input id="emojis" type="checkbox" aria-label="Ativar emojis"></summary><div class="body">
+        <label>Emojis escolhidos<input id="emojiText" type="text" value="🔥 🛠️ ✨" maxlength="80"></label><small>Separe os emojis com espaços.</small>
+        <div class="row"><label>Direção<select id="direction"><option value="up">↑ Subindo</option><option value="down">↓ Descendo</option><option value="left">← Esquerda</option><option value="right">→ Direita</option></select></label><label>Tamanho <output for="size"></output><input id="size" type="range" min="14" max="100" value="32"></label></div>
+        <label>Velocidade <output for="emojiSpeed"></output><input id="emojiSpeed" type="range" min="1" max="100" value="40"></label><label>Quantidade <output for="rate"></output><input id="rate" type="range" min="1" max="20" value="5"></label>
+      </div></details>
+      <details><summary>▧ Fundo da janela</summary><div class="body"><label>Fundo<select id="background"><option value="green">Verde para chroma key</option><option value="black">Preto</option><option value="blue">Azul para chroma key</option></select></label><small>Use chroma key no seu programa de transmissão para remover o fundo.</small></div></details>
+      <div class="footer">Seus ajustes ficam salvos neste navegador.</div>
+    </aside>
+  </main>
+  <script src="app.js"></script>
+</body></html>

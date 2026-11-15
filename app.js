@@ -1,17 +1,21 @@
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
-  const fields = ['enabled', 'model', 'color', 'thickness', 'intensity', 'speed', 'emojis', 'emojiText', 'direction', 'size', 'emojiSpeed', 'rate', 'background'];
-  const storageKey = 'interferencia-settings-v1';
+  const fields = ['enabled', 'model', 'color', 'thickness', 'intensity', 'speed', 'emojis', 'emojiText', 'direction', 'size', 'emojiSpeed', 'rate'];
+  const storageKey = 'interferencia-settings-v2';
   const overlay = new URLSearchParams(location.search).get('overlay') === '1';
   const canvas = $('effects'), ctx = canvas.getContext('2d'), surface = $('surface');
   let state = {}, lastFrame = 0, lastEmoji = 0;
-  if (overlay) { document.body.classList.add('overlay'); document.title = 'Interferência — captura'; }
+  if (overlay) { document.documentElement.classList.add('overlay-mode'); document.body.classList.add('overlay'); document.title = 'Interferência — camada transparente'; }
 
   const readControls = () => Object.fromEntries(fields.map(id => [id, $(id).type === 'checkbox' ? $(id).checked : $(id).value]));
   function load() {
     let saved = {};
     try { saved = JSON.parse(localStorage.getItem(storageKey) || '{}'); } catch { /* usar valores padrão */ }
+    if (overlay) {
+      const params = new URLSearchParams(location.search);
+      for (const id of fields) if (params.has(id)) saved[id] = $(id).type === 'checkbox' ? params.get(id) === '1' : params.get(id);
+    }
     for (const id of fields) if (saved[id] !== undefined) $(id).type === 'checkbox' ? $(id).checked = !!saved[id] : $(id).value = saved[id];
     state = readControls(); renderControls();
   }
@@ -25,7 +29,10 @@
       const control = $(el.getAttribute('for'));
       el.value = control.value + (['intensity', 'speed', 'emojiSpeed'].includes(control.id) ? '%' : ['size', 'thickness'].includes(control.id) ? ' px' : '');
     });
-    surface.style.backgroundColor = ({ green: '#00b140', black: '#000000', blue: '#0047ff' })[state.background] || '#00b140';
+    const url = new URL(location.href); url.search = '';
+    url.searchParams.set('overlay', '1');
+    for (const id of fields) url.searchParams.set(id, typeof state[id] === 'boolean' ? (state[id] ? '1' : '0') : state[id]);
+    $('overlayLink').value = url.href;
   }
   document.querySelectorAll('input,select').forEach(el => el.addEventListener('input', save));
   document.querySelectorAll('summary input').forEach(el => el.addEventListener('click', e => e.stopPropagation()));
@@ -40,11 +47,15 @@
   });
   $('openOverlay').addEventListener('click', () => {
     save();
-    const url = new URL(location.href); url.searchParams.set('overlay', '1');
-    const win = window.open(url.href, 'interferencia-captura', 'popup=yes,width=540,height=960');
-    $('status').textContent = win ? 'Janela aberta. Selecione “Interferência — captura” no LIVE Studio.' : 'Permita pop-ups para abrir a janela de captura.';
+    const win = window.open($('overlayLink').value, 'interferencia-captura', 'popup=yes,width=540,height=960');
+    $('status').textContent = win ? 'Janela de prévia aberta. Para transparência na live, use a fonte Link com o endereço acima.' : 'Permita pop-ups para abrir a prévia.';
   });
-  window.addEventListener('storage', e => { if (e.key === storageKey) load(); });
+  $('copyLink').addEventListener('click', async () => {
+    $('overlayLink').select();
+    try { await navigator.clipboard.writeText($('overlayLink').value); $('status').textContent = 'Link copiado. Cole na fonte Link / Navegador.'; }
+    catch { $('status').textContent = 'O link está selecionado. Pressione Ctrl+C para copiá-lo.'; }
+  });
+  window.addEventListener('storage', e => { if (!overlay && e.key === storageKey) load(); });
   load();
 
   function particle(symbol) {
@@ -76,8 +87,10 @@
       } else {
         const y = (now * speed * .007) % (h + 80) - 40;
         ctx.globalAlpha = strength * .5; ctx.fillRect(0, y, w, thickness * (state.model === 'vhs' ? 3 : 1));
-        ctx.globalAlpha = strength * .22;
-        for (let i = 0; i < (state.model === 'glitch' ? 12 : 5); i++) ctx.fillRect(Math.random() * w, Math.random() * h, Math.random() * w * .25, Math.max(1, thickness / 2));
+        if (state.model !== 'bar') {
+          ctx.globalAlpha = strength * .22;
+          for (let i = 0; i < (state.model === 'glitch' ? 12 : 5); i++) ctx.fillRect(Math.random() * w, Math.random() * h, Math.random() * w * .25, Math.max(1, thickness / 2));
+        }
       }
       ctx.globalAlpha = 1;
     }
